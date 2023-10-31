@@ -1,35 +1,104 @@
 /** @format */
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { updateContainer } from "../redux/styleSlice";
+import { updateContainer, addSectionToActive } from "../redux/styleSlice";
+import { v4 as uuidv4 } from "uuid";
 import "../App.css";
 
 export default function Controls() {
   const [activeStyle, setActiveStyle] = useState({});
-  const style = useSelector((state) => state.style);
+  const [componentType, setComponentType] = useState("Section");
+  const style = useSelector((state) => state.section.properties);
+  const activeContainer = useSelector((state) => state.section.activeContainer);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (style.activeContainer !== 0) {
-      const styleIndex = style.style.findIndex(
-        (s) => s.id === style.activeContainer
-      );
+    if (activeContainer !== 0) {
+      const styleIndex = style.findIndex((s) => s.id === activeContainer);
 
       if (styleIndex !== -1) {
-        setActiveStyle(style.style[styleIndex]);
+        setActiveStyle(style[styleIndex].style);
       } else {
-        setActiveStyle(style.style[0]);
+        setActiveStyle(style[0].style);
       }
     }
-  }, [style.activeContainer]);
+  }, [activeContainer]);
 
-  console.log(style.style);
+  const handleAddComponent = () => {
+    if (componentType === "Section") {
+      const newContainer = {
+        id: uuidv4(),
+        style: {
+          position: "relative",
+          borderStyle: "solid",
+          borderWidth: "1px",
+          height: "100px",
+          width: "100px",
+          marginLeft: "0",
+          marginTop: "0",
+          paddingLeft: "0",
+          paddingRight: "0",
+          paddingTop: "0",
+          paddingBottom: "0",
+          color: "#000000",
+          backgroundColor: "#FFFFFF",
+        },
+        children: [],
+      };
+
+      dispatch(addSectionToActive(newContainer));
+    }
+  };
+
+  const handleDispatchUpdate = () => {
+    let buffer = {};
+    //removing any properties containing an empty string.
+    for (const key in activeStyle) {
+      if (activeStyle[key] !== "")
+        buffer = { ...buffer, [key]: activeStyle[key] };
+    }
+    dispatch(updateContainer(buffer));
+  };
 
   return (
     <div
       className="controlsCont"
-      style={{ display: style.activeContainer !== 0 ? "flex" : "none" }}
+      style={{ display: activeContainer !== 0 ? "flex" : "none" }}
     >
+      <div className="addContainerControls">
+        <label htmlFor="componentType">Add Component:</label>
+        <select
+          style={{ marginLeft: "5px", marginRight: "10px" }}
+          id="componentType"
+          name="componentType"
+          value={componentType}
+          onChange={(e) => setComponentType(e.target.value)}
+        >
+          <option value="Section">Section</option>
+          <option value="Button">Button</option>
+        </select>
+        <button onClick={() => handleAddComponent()}>Add</button>
+      </div>
+
+      <div className="addContainerControls">
+        <label htmlFor="position">Position:</label>
+        <select
+          style={{ marginLeft: "5px", marginRight: "10px" }}
+          id="position"
+          name="position"
+          value={activeStyle.position}
+          onChange={(e) =>
+            setActiveStyle({ ...activeStyle, position: e.target.value })
+          }
+        >
+          <option value="relative">Relative</option>
+          <option value="absolute">Absolute</option>
+          <option value="static">Static</option>
+          <option value="fixed">Fixed</option>
+          <option value="sticky">Sticky</option>
+        </select>
+      </div>
+
       <div className="controlRows">
         <div className="controlColumns">
           <span>Margin</span>
@@ -116,6 +185,48 @@ export default function Controls() {
             ></input>
           </div>
         </div>
+
+        <div className="controlColumns">
+          <span>Position</span>
+          <div className="marginControlRows">
+            <input
+              className="controlFields"
+              type="text"
+              value={activeStyle.top}
+              onChange={(e) =>
+                setActiveStyle({ ...activeStyle, top: e.target.value })
+              }
+            ></input>
+          </div>
+          <div className="marginControlRows">
+            <input
+              className="controlFields"
+              type="text"
+              value={activeStyle.left}
+              onChange={(e) =>
+                setActiveStyle({ ...activeStyle, left: e.target.value })
+              }
+            ></input>
+            <input
+              className="controlFields"
+              type="text"
+              value={activeStyle.right}
+              onChange={(e) =>
+                setActiveStyle({ ...activeStyle, right: e.target.value })
+              }
+            ></input>
+          </div>
+          <div className="marginControlRows">
+            <input
+              className="controlFields"
+              type="text"
+              value={activeStyle.bottom}
+              onChange={(e) =>
+                setActiveStyle({ ...activeStyle, bottom: e.target.value })
+              }
+            ></input>
+          </div>
+        </div>
       </div>
 
       <div className="controlRows">
@@ -198,9 +309,7 @@ export default function Controls() {
         ></div>
       </div>
       <div className="submitControlRow">
-        <button onClick={() => dispatch(updateContainer(activeStyle))}>
-          Apply
-        </button>
+        <button onClick={() => handleDispatchUpdate()}>Apply</button>
       </div>
     </div>
   );

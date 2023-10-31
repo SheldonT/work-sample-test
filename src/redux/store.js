@@ -5,6 +5,6 @@ import styleReducer from "./styleSlice";
 
 export default configureStore({
   reducer: {
-    style: styleReducer,
+    section: styleReducer,
   },
 });

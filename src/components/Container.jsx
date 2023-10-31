@@ -1,19 +1,21 @@
 /** @format */
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { addNewContainer, setActiveContainer } from "../redux/styleSlice";
 import { v4 as uuidv4 } from "uuid";
 
-export default function Container({ id }) {
+export default function Container({ id, initialStyle }) {
   const [stateId, setStateId] = useState(0);
 
-  const style = useSelector((state) => state.style);
+  const style = useSelector((state) => state.section.properties);
+  const activeContainer = useSelector((state) => state.section.activeContainer);
 
   const dispatch = useDispatch();
 
   useState(() => {
     let uniqueId = 0;
+    let newContainerState = {};
 
     if (id) {
       uniqueId = id;
@@ -21,55 +23,55 @@ export default function Container({ id }) {
       uniqueId = uuidv4();
     }
 
-    const newContainerState = {
-      id: uniqueId,
-      borderStyle: "solid",
-      borderWidth: 1,
-      height: 100,
-      width: 100,
-      marginLeft: 0,
-      marginRight: 0,
-      marginTop: 0,
-      marginBottom: 0,
-      paddingLeft: 0,
-      paddingRight: 0,
-      paddingTop: 0,
-      paddingBottom: 0,
-      color: "#000000",
-      backgroundColor: "#FFFFFF",
-    };
+    if (initialStyle) {
+      newContainerState = { id: uniqueId, style: initialStyle, children: [] };
+      dispatch(addNewContainer(newContainerState));
+    }
 
-    dispatch(addNewContainer(newContainerState));
+    if (!id && !initialStyle) {
+      newContainerState = {
+        id: uniqueId,
+        style: {
+          position: "relative",
+          borderStyle: "solid",
+          borderWidth: "1px",
+          height: "100px",
+          width: "100px",
+          marginLeft: "0",
+          marginTop: "0",
+          paddingLeft: "0",
+          paddingRight: "0",
+          paddingTop: "0",
+          paddingBottom: "0",
+          color: "#000000",
+          backgroundColor: "#FFFFFF",
+        },
+        children: [],
+      };
+
+      dispatch(addNewContainer(newContainerState));
+    }
 
     setStateId(uniqueId);
   }, []);
 
-  const stateIndex = style.style.findIndex((s) => s.id === stateId);
+  const stateIndex = style.findIndex((s) => s.id === stateId);
 
-  const boxStyle = {
-    borderStyle: "solid",
-    borderWidth: `${style.style[stateIndex].borderWidth}px`,
-    height: `${style.style[stateIndex].height}px`,
-    width: `${style.style[stateIndex].width}px`,
-    marginLeft: `${style.style[stateIndex].marginLeft}px`,
-    marginRight: `${style.style[stateIndex].marginRight}px`,
-    marginTop: `${style.style[stateIndex].marginTop}px`,
-    marginBottom: `${style.style[stateIndex].marginBottom}px`,
-    paddingLeft: `${style.style[stateIndex].paddingLeft}px`,
-    paddingRight: `${style.style[stateIndex].paddingRight}px`,
-    paddingTop: `${style.style[stateIndex].paddingTop}px`,
-    paddingBottom: `${style.style[stateIndex].paddingBottom}px`,
-    color: style.style[stateIndex].color,
-    backgroundColor: style.style[stateIndex].backgroundColor,
-  };
+  const boxStyle = style[stateIndex].style;
 
-  const handleControls = () => {
-    if (style.activeContainer !== stateId) {
-      dispatch(setActiveContainer(stateId));
-    } else {
+  const handleControls = (e) => {
+    if (e.target.id === activeContainer) {
       dispatch(setActiveContainer(0));
+    } else {
+      dispatch(setActiveContainer(e.target.id));
     }
   };
 
-  return <div style={boxStyle} onClick={() => handleControls()}></div>;
+  return (
+    <div id={stateId} style={boxStyle} onClick={(e) => handleControls(e)}>
+      {style[stateIndex].children.map((child, i) => {
+        return <Container key={i} id={child} />;
+      })}
+    </div>
+  );
 }

@@ -42,6 +42,16 @@
   margin-top: 10px;
 }
 
+.addContainerControls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 5px 0 0 0;
+  padding: 0 0 3px 0;
+  border-style: none none solid none;
+  border-width: 0 0 1px 0;
+}
+
 .marginControlRows {
   display: flex;
   flex-direction: row;

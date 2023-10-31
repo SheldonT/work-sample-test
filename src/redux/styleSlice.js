@@ -3,47 +3,75 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 export const styleSlice = createSlice({
-  name: "style",
+  name: "section",
   initialState: {
-    style: [
+    properties: [
       {
         id: 0,
-        borderWidth: 1,
-        height: 100,
-        width: 100,
-        marginLeft: 0,
-        marginRight: 0,
-        marginTop: 0,
-        marginBottom: 0,
-        paddingLeft: 0,
-        paddingRight: 0,
-        paddingTop: 0,
-        paddingBottom: 0,
-        color: "#000000",
-        backgroundColor: "#FFFFFF",
+        style: {
+          position: "relative",
+          borderWidth: "1px",
+          height: "100px",
+          width: "100px",
+          marginLeft: "0",
+          marginTop: "0",
+          paddingLeft: "0",
+          paddingRight: "0",
+          paddingTop: "0",
+          paddingBottom: "0",
+          color: "#000000",
+          backgroundColor: "#FFFFFF",
+        },
+
+        children: [],
       },
     ],
     activeContainer: 0,
   },
   reducers: {
     addNewContainer: (state, action) => {
-      state.style.push(action.payload);
+      console.log("addNewContainer");
+      let newProperties = [...state.properties];
+
+      newProperties.push(action.payload);
+
+      state.properties = newProperties;
     },
     setActiveContainer: (state, action) => {
       state.activeContainer = action.payload;
     },
     updateContainer: (state, action) => {
-      const containerIndex = state.style.findIndex(
-        (s) => s.id === action.payload.id
+      const containerIndex = state.properties.findIndex(
+        (s) => s.id === state.activeContainer
       );
 
-      state.style[containerIndex] = action.payload;
+      state.properties[containerIndex].style = action.payload;
+    },
+
+    addSectionToActive: (state, action) => {
+      console.log("addSectionToActive");
+      let newProperties = [...state.properties];
+
+      const containerIndex = newProperties.findIndex(
+        (s) => s.id === state.activeContainer
+      );
+
+      newProperties.push(action.payload);
+      newProperties[containerIndex].children.push(action.payload.id);
+
+      state.properties = newProperties;
+
+      state.activeContainer = action.payload.id;
     },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { addNewContainer, setActiveContainer, updateContainer } =
-  styleSlice.actions;
+export const {
+  addNewContainer,
+  setActiveContainer,
+  updateContainer,
+  addSectionToActive,
+} = styleSlice.actions;
 
 export default styleSlice.reducer;
