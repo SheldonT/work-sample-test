@@ -75,44 +75,43 @@ function App() {
           Instructions
         </h3>
       </div>
+      <div
+        className="instructions"
+        style={{ display: showInstructions ? "block" : "none" }}
+      >
+        <div className="header">
+          <h2>Instructions</h2>
+        </div>
+        <ul>
+          <li>
+            The large container on the screen is the root container. You can add
+            an item to the root by from the <i>Add Component</i> drop down menu
+            in the controls, and clicking <i>add</i>.
+          </li>
+          <li>Add as many buttons or containers to the root as you want.</li>
+          <li>
+            Click on any section inside root to select it. You can then add
+            sections or buttons to it, or change it's CSS attributes from the
+            controls.
+          </li>
+          <li>
+            When entering CSS Attributes, don't forget to include units.
+            Keywords like <i>auto</i> are also accepted.
+          </li>
+          <li>
+            Shift-click anywhere on the screen to move the controls if they're
+            in the way.
+          </li>
+        </ul>
+        <h3
+          className="linkText"
+          onClick={() => setShowInstructions(!showInstructions)}
+        >
+          [close]
+        </h3>
+      </div>
       <Container initialStyle={initialStyle}>
         {(parentId) => nestingComponents(parentId)}
-
-        <div
-          className="instructions"
-          style={{ display: showInstructions ? "block" : "none" }}
-        >
-          <div className="header">
-            <h2>Instructions</h2>
-          </div>
-          <ul>
-            <li>
-              The large container on the screen is the root container. You can
-              add an item to the root by from the <i>Add Component</i> drop down
-              menu in the controls, and clicking <i>add</i>.
-            </li>
-            <li>Add as many buttons or containers to the root as you want.</li>
-            <li>
-              Click on any section inside root to select it. You can then add
-              sections or buttons to it, or change it's CSS attributes from the
-              controls.
-            </li>
-            <li>
-              When entering CSS Attributes, don't forget to include units.
-              Keywords like <i>auto</i> are also accepted.
-            </li>
-            <li>
-              Shift-click anywhere on the screen to move the controls if they're
-              in the way.
-            </li>
-          </ul>
-          <h3
-            className="linkText"
-            onClick={() => setShowInstructions(!showInstructions)}
-          >
-            [close]
-          </h3>
-        </div>
       </Container>
       <Controls />
     </>
