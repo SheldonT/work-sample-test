@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { addNewContainer, setActiveContainer } from "../redux/styleSlice";
+import { addNewContainer, setActiveContainer } from "../redux/sectionSlice";
+import Button from "./Button";
 import { v4 as uuidv4 } from "uuid";
 
-export default function Container({ id, initialStyle }) {
+export default function Container({ id, initialStyle, children }) {
   const [stateId, setStateId] = useState(0);
 
-  const style = useSelector((state) => state.section.properties);
+  const sectionProperties = useSelector((state) => state.section.properties);
   const activeContainer = useSelector((state) => state.section.activeContainer);
 
   const dispatch = useDispatch();
@@ -24,15 +25,23 @@ export default function Container({ id, initialStyle }) {
     }
 
     if (initialStyle) {
-      newContainerState = { id: uniqueId, style: initialStyle, children: [] };
+      newContainerState = {
+        id: uniqueId,
+        type: "section",
+        style: initialStyle,
+        children: [],
+        buttons: [],
+      };
       dispatch(addNewContainer(newContainerState));
     }
 
     if (!id && !initialStyle) {
       newContainerState = {
         id: uniqueId,
+        type: "section",
         style: {
           position: "relative",
+          display: "flex",
           borderStyle: "solid",
           borderWidth: "1px",
           height: "100px",
@@ -47,6 +56,7 @@ export default function Container({ id, initialStyle }) {
           backgroundColor: "#FFFFFF",
         },
         children: [],
+        buttons: [],
       };
 
       dispatch(addNewContainer(newContainerState));
@@ -55,9 +65,9 @@ export default function Container({ id, initialStyle }) {
     setStateId(uniqueId);
   }, []);
 
-  const stateIndex = style.findIndex((s) => s.id === stateId);
+  const stateIndex = sectionProperties.findIndex((s) => s.id === stateId);
 
-  const boxStyle = style[stateIndex].style;
+  const boxStyle = sectionProperties[stateIndex].style;
 
   const handleControls = (e) => {
     if (e.target.id === activeContainer) {
@@ -69,8 +79,13 @@ export default function Container({ id, initialStyle }) {
 
   return (
     <div id={stateId} style={boxStyle} onClick={(e) => handleControls(e)}>
-      {style[stateIndex].children.map((child, i) => {
+      {children}
+      {sectionProperties[stateIndex].children.map((child, i) => {
         return <Container key={i} id={child} />;
+      })}
+
+      {sectionProperties[stateIndex].buttons.map((button, i) => {
+        return <Button key={i} id={button} />;
       })}
     </div>
   );

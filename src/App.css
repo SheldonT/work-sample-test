@@ -66,10 +66,16 @@
   flex-direction: column;
   border-style: solid;
   border-color: black;
+  border-radius: 5px;
   border-width: 1px;
   margin: 10px;
   right: 0;
   bottom: 0;
   padding: 20px;
   width: fit-content;
+}
+
+.notice {
+  font-size: 10px;
+  padding: 0 0 0 10px;
 }

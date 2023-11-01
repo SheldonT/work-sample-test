@@ -5,6 +5,8 @@ import Container from "./components/Container";
 
 function App() {
   const initialStyle = {
+    position: "relative",
+    display: "flex",
     borderStyle: "solid",
     borderWidth: 1,
     height: "600px",

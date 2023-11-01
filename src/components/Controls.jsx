@@ -1,52 +1,93 @@
 /** @format */
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { updateContainer, addSectionToActive } from "../redux/styleSlice";
+import {
+  updateContainer,
+  addSectionToActive,
+  addButtonToActive,
+} from "../redux/sectionSlice";
 import { v4 as uuidv4 } from "uuid";
 import "../App.css";
 
 export default function Controls() {
   const [activeStyle, setActiveStyle] = useState({});
+  const [activeComponentType, setActiveComponentType] = useState("section");
   const [componentType, setComponentType] = useState("Section");
-  const style = useSelector((state) => state.section.properties);
+
+  const sectionProperties = useSelector((state) => state.section.properties);
   const activeContainer = useSelector((state) => state.section.activeContainer);
+
   const dispatch = useDispatch();
+
+  const activeComponentIndex = sectionProperties.findIndex(
+    (s) => s.id === activeContainer
+  );
 
   useEffect(() => {
     if (activeContainer !== 0) {
-      const styleIndex = style.findIndex((s) => s.id === activeContainer);
+      const sectionIndex = sectionProperties.findIndex(
+        (s) => s.id === activeContainer
+      );
 
-      if (styleIndex !== -1) {
-        setActiveStyle(style[styleIndex].style);
+      if (sectionIndex !== -1) {
+        setActiveStyle(sectionProperties[sectionIndex].style);
+        setActiveComponentType(sectionProperties[sectionIndex].type);
       } else {
-        setActiveStyle(style[0].style);
+        setActiveStyle(sectionProperties[0].style);
       }
     }
   }, [activeContainer]);
 
   const handleAddComponent = () => {
-    if (componentType === "Section") {
-      const newContainer = {
-        id: uuidv4(),
-        style: {
-          position: "relative",
-          borderStyle: "solid",
-          borderWidth: "1px",
-          height: "100px",
-          width: "100px",
-          marginLeft: "0",
-          marginTop: "0",
-          paddingLeft: "0",
-          paddingRight: "0",
-          paddingTop: "0",
-          paddingBottom: "0",
-          color: "#000000",
-          backgroundColor: "#FFFFFF",
-        },
-        children: [],
-      };
+    if (activeComponentType === "section") {
+      if (componentType === "Section") {
+        const newContainer = {
+          id: uuidv4(),
+          type: "section",
+          style: {
+            position: "relative",
+            display: "flex",
+            borderStyle: "solid",
+            borderWidth: "1px",
+            height: "100px",
+            width: "100px",
+            marginLeft: "0",
+            marginTop: "0",
+            paddingLeft: "0",
+            paddingRight: "0",
+            paddingTop: "0",
+            paddingBottom: "0",
+            color: "#000000",
+            backgroundColor: "#FFFFFF",
+          },
+          children: [],
+          buttons: [],
+        };
 
-      dispatch(addSectionToActive(newContainer));
+        dispatch(addSectionToActive(newContainer));
+      } else {
+        const newButton = {
+          id: uuidv4(),
+          type: "button",
+          style: {
+            position: "relative",
+            display: "flex",
+            borderStyle: "solid",
+            borderWidth: "1px",
+            height: "25px",
+            width: "75px",
+            marginLeft: "0",
+            marginTop: "0",
+            paddingLeft: "0",
+            paddingRight: "0",
+            paddingTop: "0",
+            paddingBottom: "0",
+            color: "#000000",
+            backgroundColor: "#FFFFFF",
+          },
+        };
+        dispatch(addButtonToActive(newButton));
+      }
     }
   };
 
@@ -57,13 +98,22 @@ export default function Controls() {
       if (activeStyle[key] !== "")
         buffer = { ...buffer, [key]: activeStyle[key] };
     }
+
     dispatch(updateContainer(buffer));
   };
+
+  let showControls = "none";
+
+  if (activeContainer !== 0 && activeContainer) showControls = "flex";
+
+  console.log(sectionProperties);
 
   return (
     <div
       className="controlsCont"
-      style={{ display: activeContainer !== 0 ? "flex" : "none" }}
+      style={{
+        display: showControls,
+      }}
     >
       <div className="addContainerControls">
         <label htmlFor="componentType">Add Component:</label>
@@ -71,13 +121,27 @@ export default function Controls() {
           style={{ marginLeft: "5px", marginRight: "10px" }}
           id="componentType"
           name="componentType"
+          disabled={activeComponentType === "button"}
           value={componentType}
           onChange={(e) => setComponentType(e.target.value)}
         >
           <option value="Section">Section</option>
           <option value="Button">Button</option>
         </select>
-        <button onClick={() => handleAddComponent()}>Add</button>
+        <button
+          disabled={activeComponentType === "button"}
+          onClick={() => handleAddComponent()}
+        >
+          Add
+        </button>
+        <span
+          className="notice"
+          style={{
+            display: activeComponentType === "button" ? "flex" : "none",
+          }}
+        >
+          Can't add a component to a button
+        </span>
       </div>
 
       <div className="addContainerControls">
@@ -96,6 +160,28 @@ export default function Controls() {
           <option value="static">Static</option>
           <option value="fixed">Fixed</option>
           <option value="sticky">Sticky</option>
+        </select>
+
+        <label htmlFor="display">Display:</label>
+        <select
+          style={{ marginLeft: "5px", marginRight: "10px" }}
+          id="display"
+          name="display"
+          value={activeStyle.display}
+          onChange={(e) =>
+            setActiveStyle({ ...activeStyle, display: e.target.value })
+          }
+        >
+          <option value="block">Block</option>
+          <option value="inline-block">Inline-Block</option>
+          <option value="flex">Flex</option>
+          <option value="inline-flex">Inline-Flex</option>
+          <option value="grid">Grid</option>
+          <option value="table">Table</option>
+          <option value="list-item">List Item</option>
+          <option value="inline-table">Inline-Table</option>
+          <option value="table-cell">Table-Cell</option>
+          <option value="table-row">Table-Row</option>
         </select>
       </div>
 
@@ -269,44 +355,26 @@ export default function Controls() {
           type="text"
           id="textColor"
           name="textColor"
+          style={{ color: activeStyle.color }}
           className="hexColorFields"
           value={activeStyle.color}
           onChange={(e) =>
             setActiveStyle({ ...activeStyle, color: e.target.value })
           }
         ></input>
-        <div
-          style={{
-            height: "25px",
-            width: "25px",
-            borderStyle: "solid",
-            borderWidth: "1px",
-            backgroundColor: activeStyle.color,
-          }}
-        ></div>
-      </div>
 
-      <div className="controlRows">
         <label htmlFor="textColor">Background Color:</label>
         <input
           type="text"
           id="textColor"
           name="textColor"
           className="hexColorFields"
+          style={{ backgroundColor: activeStyle.backgroundColor }}
           value={activeStyle.backgroundColor}
           onChange={(e) =>
             setActiveStyle({ ...activeStyle, backgroundColor: e.target.value })
           }
         ></input>
-        <div
-          style={{
-            height: "25px",
-            width: "25px",
-            borderStyle: "solid",
-            borderWidth: "1px",
-            backgroundColor: activeStyle.backgroundColor,
-          }}
-        ></div>
       </div>
       <div className="submitControlRow">
         <button onClick={() => handleDispatchUpdate()}>Apply</button>

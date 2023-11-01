@@ -1,10 +1,10 @@
 /** @format */
 
 import { configureStore } from "@reduxjs/toolkit";
-import styleReducer from "./styleSlice";
+import sectionReducer from "./sectionSlice";
 
 export default configureStore({
   reducer: {
-    section: styleReducer,
+    section: sectionReducer,
   },
 });

@@ -2,14 +2,16 @@
 
 import { createSlice } from "@reduxjs/toolkit";
 
-export const styleSlice = createSlice({
+export const sectionSlice = createSlice({
   name: "section",
   initialState: {
     properties: [
       {
         id: 0,
+        type: "section",
         style: {
           position: "relative",
+          display: "flex",
           borderWidth: "1px",
           height: "100px",
           width: "100px",
@@ -24,13 +26,13 @@ export const styleSlice = createSlice({
         },
 
         children: [],
+        buttons: [],
       },
     ],
     activeContainer: 0,
   },
   reducers: {
     addNewContainer: (state, action) => {
-      console.log("addNewContainer");
       let newProperties = [...state.properties];
 
       newProperties.push(action.payload);
@@ -49,7 +51,6 @@ export const styleSlice = createSlice({
     },
 
     addSectionToActive: (state, action) => {
-      console.log("addSectionToActive");
       let newProperties = [...state.properties];
 
       const containerIndex = newProperties.findIndex(
@@ -63,6 +64,20 @@ export const styleSlice = createSlice({
 
       state.activeContainer = action.payload.id;
     },
+
+    addButtonToActive: (state, action) => {
+      let newProperties = [...state.properties];
+
+      const containerIndex = newProperties.findIndex(
+        (s) => s.id === state.activeContainer
+      );
+
+      console.log(action.payload);
+      newProperties.push(action.payload);
+      newProperties[containerIndex].buttons.push(action.payload.id);
+
+      state.properties = newProperties;
+    },
   },
 });
 
@@ -72,6 +87,7 @@ export const {
   setActiveContainer,
   updateContainer,
   addSectionToActive,
-} = styleSlice.actions;
+  addButtonToActive,
+} = sectionSlice.actions;
 
-export default styleSlice.reducer;
+export default sectionSlice.reducer;
