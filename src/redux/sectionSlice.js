@@ -62,7 +62,7 @@ export const sectionSlice = createSlice({
 
       state.properties = newProperties;
 
-      state.activeContainer = action.payload.id;
+      //state.activeContainer = action.payload.id;
     },
 
     addButtonToActive: (state, action) => {
@@ -72,11 +72,18 @@ export const sectionSlice = createSlice({
         (s) => s.id === state.activeContainer
       );
 
-      console.log(action.payload);
       newProperties.push(action.payload);
       newProperties[containerIndex].buttons.push(action.payload.id);
 
       state.properties = newProperties;
+    },
+
+    changeButtonName: (state, action) => {
+      const containerIndex = state.properties.findIndex(
+        (s) => s.id === state.activeContainer
+      );
+
+      state.properties[containerIndex].name = action.payload;
     },
   },
 });
@@ -88,6 +95,7 @@ export const {
   updateContainer,
   addSectionToActive,
   addButtonToActive,
+  changeButtonName,
 } = sectionSlice.actions;
 
 export default sectionSlice.reducer;

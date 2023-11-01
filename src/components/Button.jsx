@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { addNewContainer, setActiveContainer } from "../redux/sectionSlice";
 import { v4 as uuidv4 } from "uuid";
 
-export default function Button({ id }) {
+export default function Button({ id, children }) {
   const [stateId, setStateId] = useState(0);
   const buttonProperties = useSelector((state) => state.section.properties);
   const activeButton = useSelector((state) => state.section.activeContainer);
@@ -23,6 +23,7 @@ export default function Button({ id }) {
 
       newButtonState = {
         id: uniqueId,
+        name: "Button",
         type: "button",
         style: {
           position: "relative",
@@ -53,16 +54,12 @@ export default function Button({ id }) {
   const buttonStyle = buttonProperties[stateIndex].style;
 
   const handleControls = (e) => {
-    if (e.target.id === activeButton) {
-      dispatch(setActiveContainer(0));
-    } else {
-      dispatch(setActiveContainer(e.target.id));
-    }
+    dispatch(setActiveContainer(e.target.id));
   };
 
   return (
     <button id={stateId} style={buttonStyle} onClick={(e) => handleControls(e)}>
-      Button
+      {children}
     </button>
   );
 }

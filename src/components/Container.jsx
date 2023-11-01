@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { addNewContainer, setActiveContainer } from "../redux/sectionSlice";
-import Button from "./Button";
 import { v4 as uuidv4 } from "uuid";
 
 export default function Container({ id, initialStyle, children }) {
@@ -61,7 +60,7 @@ export default function Container({ id, initialStyle, children }) {
 
       dispatch(addNewContainer(newContainerState));
     }
-
+    //dispatch(setActiveContainer(uniqueId));
     setStateId(uniqueId);
   }, []);
 
@@ -70,23 +69,12 @@ export default function Container({ id, initialStyle, children }) {
   const boxStyle = sectionProperties[stateIndex].style;
 
   const handleControls = (e) => {
-    if (e.target.id === activeContainer) {
-      dispatch(setActiveContainer(0));
-    } else {
-      dispatch(setActiveContainer(e.target.id));
-    }
+    dispatch(setActiveContainer(e.target.id));
   };
 
   return (
     <div id={stateId} style={boxStyle} onClick={(e) => handleControls(e)}>
-      {children}
-      {sectionProperties[stateIndex].children.map((child, i) => {
-        return <Container key={i} id={child} />;
-      })}
-
-      {sectionProperties[stateIndex].buttons.map((button, i) => {
-        return <Button key={i} id={button} />;
-      })}
+      {typeof children === "function" ? children(stateId) : children}
     </div>
   );
 }

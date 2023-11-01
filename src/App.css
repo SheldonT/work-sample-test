@@ -1,20 +1,40 @@
 /** @format */
 
 .main {
-  position: relative;
-  display: flex;
+  display: block;
   border-style: solid;
-  height: 40rem;
-  margin: 10px 0 auto 0;
 }
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.headerText {
+  margin: 0;
+}
+
 .controlFields {
   width: 50px;
+  margin: 3px 10px 3px 5px;
+}
+.buttonName {
   margin: 3px 10px 3px 5px;
 }
 
 .hexColorFields {
   width: 60px;
   margin: 3px 10px 3px 5px;
+}
+
+.controlLabel {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  font-size: 18px;
+  text-decoration: underline;
+  margin-bottom: 10px;
 }
 
 .fieldLabelCont {
@@ -69,13 +89,27 @@
   border-radius: 5px;
   border-width: 1px;
   margin: 10px;
-  right: 0;
-  bottom: 0;
-  padding: 20px;
+  padding: 0 20px 20px 20px;
   width: fit-content;
 }
 
 .notice {
   font-size: 10px;
   padding: 0 0 0 10px;
+}
+
+.instructions {
+  display: none;
+  border-style: solid;
+  margin: 5% 20% auto 20%;
+  padding: 25px;
+  border-radius: 20px;
+  font-size: 18px;
+}
+
+.linkText {
+  display: inline-block;
+  color: blue;
+  text-decoration: underline;
+  cursor: pointer;
 }

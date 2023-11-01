@@ -1,10 +1,12 @@
 /** @format */
-import { useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   updateContainer,
   addSectionToActive,
   addButtonToActive,
+  changeButtonName,
+  setActiveContainer,
 } from "../redux/sectionSlice";
 import { v4 as uuidv4 } from "uuid";
 import "../App.css";
@@ -13,17 +15,25 @@ export default function Controls() {
   const [activeStyle, setActiveStyle] = useState({});
   const [activeComponentType, setActiveComponentType] = useState("section");
   const [componentType, setComponentType] = useState("Section");
+  const [buttonName, setButtonName] = useState("Button");
+  const [keyPressed, setKeyPressed] = useState("");
+  const [mouseCoord, setMouseCoord] = useState([0, 0]);
+  const [mouseDown, setMouseDown] = useState(false);
+  const [controlsCoord, setControlsCoord] = useState({
+    right: "20px",
+    bottom: "20px",
+  });
 
   const sectionProperties = useSelector((state) => state.section.properties);
   const activeContainer = useSelector((state) => state.section.activeContainer);
 
   const dispatch = useDispatch();
 
-  const activeComponentIndex = sectionProperties.findIndex(
-    (s) => s.id === activeContainer
-  );
-
   useEffect(() => {
+    if (sectionProperties.length === 2) {
+      dispatch(setActiveContainer(sectionProperties[1].id));
+    }
+
     if (activeContainer !== 0) {
       const sectionIndex = sectionProperties.findIndex(
         (s) => s.id === activeContainer
@@ -32,17 +42,61 @@ export default function Controls() {
       if (sectionIndex !== -1) {
         setActiveStyle(sectionProperties[sectionIndex].style);
         setActiveComponentType(sectionProperties[sectionIndex].type);
+        if (sectionProperties[sectionIndex].type === "button")
+          setButtonName(sectionProperties[sectionIndex].name);
       } else {
         setActiveStyle(sectionProperties[0].style);
       }
     }
   }, [activeContainer]);
 
+  useState(() => {
+    const handleKeyDown = (event) => {
+      setKeyPressed(event.key);
+    };
+
+    const handleKeyRelease = () => {
+      setKeyPressed("");
+    };
+
+    const handleMouseDown = (event) => {
+      setMouseCoord([event.clientX, event.clientY]);
+      setMouseDown(true);
+    };
+
+    const handleMouseRelease = (event) => {
+      setMouseDown(false);
+    };
+
+    window.addEventListener("keydown", (e) => handleKeyDown(e));
+    window.addEventListener("keyup", handleKeyRelease);
+    window.addEventListener("mousedown", (e) => handleMouseDown(e));
+    window.addEventListener("mouseup", (e) => handleMouseRelease(e));
+
+    return () => {
+      window.removeEventListener("keydown", (e) => handleKeyDown(e));
+      window.removeEventListener("keyup", handleKeyRelease);
+      window.removeEventListener("mousedown", (e) => handleMouseDown(e));
+      window.removeEventListener("mouseup", (e) => handleMouseRelease(e));
+    };
+  }, []);
+
+  useEffect(() => {
+    if (keyPressed === "Shift" && mouseDown) {
+      setControlsCoord({
+        left: `${mouseCoord[0]}px`,
+        top: `${mouseCoord[1]}px`,
+      });
+    }
+  }, [mouseCoord]);
+
   const handleAddComponent = () => {
     if (activeComponentType === "section") {
+      const newComponentId = uuidv4();
+
       if (componentType === "Section") {
         const newContainer = {
-          id: uuidv4(),
+          id: newComponentId,
           type: "section",
           style: {
             position: "relative",
@@ -63,11 +117,11 @@ export default function Controls() {
           children: [],
           buttons: [],
         };
-
         dispatch(addSectionToActive(newContainer));
       } else {
         const newButton = {
-          id: uuidv4(),
+          id: newComponentId,
+          name: "New Button",
           type: "button",
           style: {
             position: "relative",
@@ -87,34 +141,30 @@ export default function Controls() {
           },
         };
         dispatch(addButtonToActive(newButton));
+        setButtonName(newButton.name);
       }
+
+      //dispatch(setActiveContainer(newComponentId));
     }
   };
 
   const handleDispatchUpdate = () => {
     let buffer = {};
+
     //removing any properties containing an empty string.
     for (const key in activeStyle) {
       if (activeStyle[key] !== "")
         buffer = { ...buffer, [key]: activeStyle[key] };
     }
 
+    if (activeComponentType === "button")
+      dispatch(changeButtonName(buttonName));
     dispatch(updateContainer(buffer));
   };
 
-  let showControls = "none";
-
-  if (activeContainer !== 0 && activeContainer) showControls = "flex";
-
-  console.log(sectionProperties);
-
   return (
-    <div
-      className="controlsCont"
-      style={{
-        display: showControls,
-      }}
-    >
+    <div className="controlsCont" style={controlsCoord}>
+      <div className="controlLabel">Controls</div>
       <div className="addContainerControls">
         <label htmlFor="componentType">Add Component:</label>
         <select
@@ -128,6 +178,7 @@ export default function Controls() {
           <option value="Section">Section</option>
           <option value="Button">Button</option>
         </select>
+
         <button
           disabled={activeComponentType === "button"}
           onClick={() => handleAddComponent()}
@@ -142,6 +193,23 @@ export default function Controls() {
         >
           Can't add a component to a button
         </span>
+      </div>
+      <div
+        className="addContainerControls"
+        style={{
+          display: activeComponentType === "button" ? "flex" : "none",
+        }}
+      >
+        <label htmlFor="buttonName">Button Name:</label>
+        <input
+          type="text"
+          id="buttonName"
+          name="buttonName"
+          className="buttonName"
+          placeholder="Button Name"
+          value={buttonName}
+          onChange={(e) => setButtonName(e.target.value)}
+        ></input>
       </div>
 
       <div className="addContainerControls">
@@ -184,7 +252,29 @@ export default function Controls() {
           <option value="table-row">Table-Row</option>
         </select>
       </div>
-
+      <div
+        className="addContainerControls"
+        style={{
+          display:
+            activeStyle.display && activeStyle.display === "flex"
+              ? "flex"
+              : "none",
+        }}
+      >
+        <label htmlFor="flexDirection">Flex-Direction:</label>
+        <select
+          style={{ marginLeft: "5px", marginRight: "10px" }}
+          id="flexDirection"
+          name="flexDirection"
+          value={activeStyle.flexDirection}
+          onChange={(e) =>
+            setActiveStyle({ ...activeStyle, flexDirection: e.target.value })
+          }
+        >
+          <option value="row">Row</option>
+          <option value="column">Column</option>
+        </select>
+      </div>
       <div className="controlRows">
         <div className="controlColumns">
           <span>Margin</span>
@@ -192,6 +282,7 @@ export default function Controls() {
             <input
               className="controlFields"
               type="text"
+              placeholder="Top"
               value={activeStyle.marginTop}
               onChange={(e) =>
                 setActiveStyle({ ...activeStyle, marginTop: e.target.value })
@@ -202,6 +293,7 @@ export default function Controls() {
             <input
               className="controlFields"
               type="text"
+              placeholder="Left"
               value={activeStyle.marginLeft}
               onChange={(e) =>
                 setActiveStyle({ ...activeStyle, marginLeft: e.target.value })
@@ -210,6 +302,7 @@ export default function Controls() {
             <input
               className="controlFields"
               type="text"
+              placeholder="Right"
               value={activeStyle.marginRight}
               onChange={(e) =>
                 setActiveStyle({ ...activeStyle, marginRight: e.target.value })
@@ -220,6 +313,7 @@ export default function Controls() {
             <input
               className="controlFields"
               type="text"
+              placeholder="Bottom"
               value={activeStyle.marginBottom}
               onChange={(e) =>
                 setActiveStyle({ ...activeStyle, marginBottom: e.target.value })
@@ -233,6 +327,7 @@ export default function Controls() {
             <input
               className="controlFields"
               type="text"
+              placeholder="Top"
               value={activeStyle.paddingTop}
               onChange={(e) =>
                 setActiveStyle({ ...activeStyle, paddingTop: e.target.value })
@@ -243,6 +338,7 @@ export default function Controls() {
             <input
               className="controlFields"
               type="text"
+              placeholder="Left"
               value={activeStyle.paddingLeft}
               onChange={(e) =>
                 setActiveStyle({ ...activeStyle, paddingLeft: e.target.value })
@@ -251,6 +347,7 @@ export default function Controls() {
             <input
               className="controlFields"
               type="text"
+              placeholder="Right"
               value={activeStyle.paddingRight}
               onChange={(e) =>
                 setActiveStyle({ ...activeStyle, paddingRight: e.target.value })
@@ -261,6 +358,7 @@ export default function Controls() {
             <input
               className="controlFields"
               type="text"
+              placeholder="Bottom"
               value={activeStyle.paddingBottom}
               onChange={(e) =>
                 setActiveStyle({
@@ -278,6 +376,7 @@ export default function Controls() {
             <input
               className="controlFields"
               type="text"
+              placeholder="Top"
               value={activeStyle.top}
               onChange={(e) =>
                 setActiveStyle({ ...activeStyle, top: e.target.value })
@@ -288,6 +387,7 @@ export default function Controls() {
             <input
               className="controlFields"
               type="text"
+              placeholder="Left"
               value={activeStyle.left}
               onChange={(e) =>
                 setActiveStyle({ ...activeStyle, left: e.target.value })
@@ -296,6 +396,7 @@ export default function Controls() {
             <input
               className="controlFields"
               type="text"
+              placeholder="Right"
               value={activeStyle.right}
               onChange={(e) =>
                 setActiveStyle({ ...activeStyle, right: e.target.value })
@@ -306,6 +407,7 @@ export default function Controls() {
             <input
               className="controlFields"
               type="text"
+              placeholder="Bottom"
               value={activeStyle.bottom}
               onChange={(e) =>
                 setActiveStyle({ ...activeStyle, bottom: e.target.value })
