@@ -2,14 +2,13 @@
 
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { addNewContainer, setActiveContainer } from "../redux/sectionSlice";
+import { addNewComponent, setActiveComponent } from "../redux/sectionSlice";
 import { v4 as uuidv4 } from "uuid";
 
 export default function Container({ id, initialStyle, children }) {
   const [stateId, setStateId] = useState(0);
 
   const sectionProperties = useSelector((state) => state.section.properties);
-  const activeContainer = useSelector((state) => state.section.activeContainer);
 
   const dispatch = useDispatch();
 
@@ -31,7 +30,7 @@ export default function Container({ id, initialStyle, children }) {
         children: [],
         buttons: [],
       };
-      dispatch(addNewContainer(newContainerState));
+      dispatch(addNewComponent(newContainerState));
     }
 
     if (!id && !initialStyle) {
@@ -58,9 +57,8 @@ export default function Container({ id, initialStyle, children }) {
         buttons: [],
       };
 
-      dispatch(addNewContainer(newContainerState));
+      dispatch(addNewComponent(newContainerState));
     }
-    //dispatch(setActiveContainer(uniqueId));
     setStateId(uniqueId);
   }, []);
 
@@ -69,7 +67,7 @@ export default function Container({ id, initialStyle, children }) {
   const boxStyle = sectionProperties[stateIndex].style;
 
   const handleControls = (e) => {
-    dispatch(setActiveContainer(e.target.id));
+    dispatch(setActiveComponent(e.target.id));
   };
 
   return (

@@ -29,22 +29,22 @@ export const sectionSlice = createSlice({
         buttons: [],
       },
     ],
-    activeContainer: 0,
+    activeComponent: 0,
   },
   reducers: {
-    addNewContainer: (state, action) => {
+    addNewComponent: (state, action) => {
       let newProperties = [...state.properties];
 
       newProperties.push(action.payload);
 
       state.properties = newProperties;
     },
-    setActiveContainer: (state, action) => {
-      state.activeContainer = action.payload;
+    setActiveComponent: (state, action) => {
+      state.activeComponent = action.payload;
     },
-    updateContainer: (state, action) => {
+    updateComponent: (state, action) => {
       const containerIndex = state.properties.findIndex(
-        (s) => s.id === state.activeContainer
+        (s) => s.id === state.activeComponent
       );
 
       state.properties[containerIndex].style = action.payload;
@@ -54,22 +54,20 @@ export const sectionSlice = createSlice({
       let newProperties = [...state.properties];
 
       const containerIndex = newProperties.findIndex(
-        (s) => s.id === state.activeContainer
+        (s) => s.id === state.activeComponent
       );
 
       newProperties.push(action.payload);
       newProperties[containerIndex].children.push(action.payload.id);
 
       state.properties = newProperties;
-
-      //state.activeContainer = action.payload.id;
     },
 
     addButtonToActive: (state, action) => {
       let newProperties = [...state.properties];
 
       const containerIndex = newProperties.findIndex(
-        (s) => s.id === state.activeContainer
+        (s) => s.id === state.activeComponent
       );
 
       newProperties.push(action.payload);
@@ -80,7 +78,7 @@ export const sectionSlice = createSlice({
 
     changeButtonName: (state, action) => {
       const containerIndex = state.properties.findIndex(
-        (s) => s.id === state.activeContainer
+        (s) => s.id === state.activeComponent
       );
 
       state.properties[containerIndex].name = action.payload;
@@ -90,9 +88,9 @@ export const sectionSlice = createSlice({
 
 // Action creators are generated for each case reducer function
 export const {
-  addNewContainer,
-  setActiveContainer,
-  updateContainer,
+  addNewComponent,
+  setActiveComponent,
+  updateComponent,
   addSectionToActive,
   addButtonToActive,
   changeButtonName,

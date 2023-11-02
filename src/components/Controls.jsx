@@ -2,11 +2,11 @@
 import { useRef, useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
-  updateContainer,
+  updateComponent,
   addSectionToActive,
   addButtonToActive,
   changeButtonName,
-  setActiveContainer,
+  setActiveComponent,
 } from "../redux/sectionSlice";
 import { v4 as uuidv4 } from "uuid";
 import "../App.css";
@@ -24,31 +24,31 @@ export default function Controls() {
     bottom: "20px",
   });
 
-  const sectionProperties = useSelector((state) => state.section.properties);
-  const activeContainer = useSelector((state) => state.section.activeContainer);
+  const componentProperties = useSelector((state) => state.section.properties);
+  const activeComponent = useSelector((state) => state.section.activeComponent);
 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (sectionProperties.length === 2) {
-      dispatch(setActiveContainer(sectionProperties[1].id));
+    if (componentProperties.length === 2) {
+      dispatch(setActiveComponent(componentProperties[1].id));
     }
 
-    if (activeContainer !== 0) {
-      const sectionIndex = sectionProperties.findIndex(
-        (s) => s.id === activeContainer
+    if (activeComponent !== 0) {
+      const sectionIndex = componentProperties.findIndex(
+        (s) => s.id === activeComponent
       );
 
       if (sectionIndex !== -1) {
-        setActiveStyle(sectionProperties[sectionIndex].style);
-        setActiveComponentType(sectionProperties[sectionIndex].type);
-        if (sectionProperties[sectionIndex].type === "button")
-          setButtonName(sectionProperties[sectionIndex].name);
+        setActiveStyle(componentProperties[sectionIndex].style);
+        setActiveComponentType(componentProperties[sectionIndex].type);
+        if (componentProperties[sectionIndex].type === "button")
+          setButtonName(componentProperties[sectionIndex].name);
       } else {
-        setActiveStyle(sectionProperties[0].style);
+        setActiveStyle(componentProperties[0].style);
       }
     }
-  }, [activeContainer]);
+  }, [activeComponent]);
 
   useState(() => {
     const handleKeyDown = (event) => {
@@ -143,8 +143,6 @@ export default function Controls() {
         dispatch(addButtonToActive(newButton));
         setButtonName(newButton.name);
       }
-
-      //dispatch(setActiveContainer(newComponentId));
     }
   };
 
@@ -159,7 +157,7 @@ export default function Controls() {
 
     if (activeComponentType === "button")
       dispatch(changeButtonName(buttonName));
-    dispatch(updateContainer(buffer));
+    dispatch(updateComponent(buffer));
   };
 
   return (

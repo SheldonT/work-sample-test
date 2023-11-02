@@ -8,7 +8,7 @@ import Button from "./components/Button";
 
 function App() {
   const [showInstructions, setShowInstructions] = useState(false);
-  const sectionProperties = useSelector((state) => state.section.properties);
+  const componentProperties = useSelector((state) => state.section.properties);
 
   const initialStyle = {
     position: "relative",
@@ -28,11 +28,13 @@ function App() {
   };
 
   const nestingComponents = (parentId) => {
-    const sectionIndex = sectionProperties.findIndex((s) => s.id === parentId);
+    const sectionIndex = componentProperties.findIndex(
+      (s) => s.id === parentId
+    );
 
     const nestedSections = (index) => {
-      if (index !== -1 && sectionProperties[index]) {
-        const childContainers = sectionProperties[index].children.map(
+      if (index !== -1 && componentProperties[index]) {
+        const childContainers = componentProperties[index].children.map(
           (childSectionId, i) => {
             return (
               <Container key={i} id={childSectionId}>
@@ -42,15 +44,15 @@ function App() {
             );
           }
         );
-        const childButtons = sectionProperties[index].buttons.map(
+        const childButtons = componentProperties[index].buttons.map(
           (childSectionId, i) => {
-            const buttonIndex = sectionProperties.findIndex(
+            const buttonIndex = componentProperties.findIndex(
               (b) => b.id === childSectionId
             );
 
             return (
               <Button key={i} id={childSectionId}>
-                {sectionProperties[buttonIndex].name}
+                {componentProperties[buttonIndex].name}
               </Button>
             );
           }
@@ -92,7 +94,7 @@ function App() {
           <li>
             Click on any section inside root to select it. You can then add
             sections or buttons to it, or change it's CSS attributes from the
-            controls.
+            controls. Remember to click apply after changing any attributes.
           </li>
           <li>
             When entering CSS Attributes, don't forget to include units.
@@ -101,6 +103,15 @@ function App() {
           <li>
             Shift-click anywhere on the screen to move the controls if they're
             in the way.
+          </li>
+          <li>
+            Project code is hosted at{" "}
+            <a
+              href="https://github.com/SheldonT/work-sample-test"
+              target="_blank"
+            >
+              https://github.com/SheldonT/work-sample-test
+            </a>
           </li>
         </ul>
         <h3
