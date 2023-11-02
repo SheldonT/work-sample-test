@@ -1,5 +1,5 @@
 /** @format */
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSelector } from "react-redux";
 
 import Controls from "./components/Controls";
@@ -14,11 +14,11 @@ function App() {
     position: "relative",
     display: "flex",
     borderStyle: "solid",
-    borderWidth: 1,
+    borderWidth: "1px",
     height: "600px",
     marginLeft: "50px",
     marginRight: "50px",
-    marginTop: "50px",
+    marginTop: "0",
     paddingLeft: "0",
     paddingRight: "0",
     paddingTop: "0",
