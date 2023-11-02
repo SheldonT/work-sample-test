@@ -84,9 +84,9 @@ function App() {
         </div>
         <ul>
           <li>
-            The large container on the screen is the root container. You can add
-            an item to the root by from the <i>Add Component</i> drop down menu
-            in the controls, and clicking <i>add</i>.
+            The large container below is the root container. You can add an item
+            to the root by from the <i>Add Component</i> drop down menu in the
+            controls, and clicking <i>add</i>.
           </li>
           <li>Add as many buttons or containers to the root as you want.</li>
           <li>
