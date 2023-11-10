@@ -30,7 +30,7 @@ export const sectionSlice = createSlice({
       },
     ],
     activeComponent: 0,
-    previousState: {},
+    previousState: [],
   },
 
   /*
@@ -42,8 +42,7 @@ export const sectionSlice = createSlice({
 
   reducers: {
     addNewComponent: (state, action) => {
-      state.previousState = { ...state };
-
+      state.previousState = [...state.properties];
       state.properties.push(action.payload);
     },
     deleteComponent: (state) => {
@@ -56,6 +55,7 @@ export const sectionSlice = createSlice({
         componentToDelete !== 1 &&
         componentToDelete !== -1
       ) {
+        state.previousState = [...state.properties];
         for (let i = 0; i < state.properties.length; i++) {
           if (state.properties[i].type === "section") {
             for (let j = 0; j < state.properties[i].children.length; j++) {
@@ -113,6 +113,7 @@ export const sectionSlice = createSlice({
     },
 
     updateComponent: (state, action) => {
+      state.previousState = [...state.properties];
       const containerIndex = state.properties.findIndex(
         (s) => s.id === state.activeComponent
       );
@@ -139,6 +140,7 @@ export const sectionSlice = createSlice({
     },
 
     addSectionToActive: (state, action) => {
+      state.previousState = [...state.properties];
       const containerIndex = state.properties.findIndex(
         (s) => s.id === state.activeComponent
       );
@@ -148,6 +150,7 @@ export const sectionSlice = createSlice({
     },
 
     addButtonToActive: (state, action) => {
+      state.previousState = [...state.properties];
       const containerIndex = state.properties.findIndex(
         (s) => s.id === state.activeComponent
       );
@@ -157,6 +160,7 @@ export const sectionSlice = createSlice({
     },
 
     changeButtonName: (state, action) => {
+      state.previousState = [...state.properties];
       const containerIndex = state.properties.findIndex(
         (s) => s.id === state.activeComponent
       );
@@ -174,6 +178,7 @@ export const {
   addSectionToActive,
   addButtonToActive,
   changeButtonName,
+  undoChange,
 } = sectionSlice.actions;
 
 export default sectionSlice.reducer;

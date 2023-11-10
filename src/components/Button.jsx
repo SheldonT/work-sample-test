@@ -47,23 +47,6 @@ export default function Button({ id, children }) {
     }
 
     setStateId(uniqueId);
-
-    /*const handleKeyDown = (event) => {
-      if (event.key === "Shift" || event.key === "Control") {
-        setIsKeyPressed(true);
-      }
-    };
-    const handleKeyRelease = () => {
-      setIsKeyPressed(false);
-    };
-
-    window.addEventListener("keydown", (e) => handleKeyDown(e));
-    window.addEventListener("keyup", handleKeyRelease);
-
-    return () => {
-      window.removeEventListener("keydown", (e) => handleKeyDown(e));
-      window.removeEventListener("keyup", handleKeyRelease);
-    };*/
   }, []);
 
   let stateIndex = 0;

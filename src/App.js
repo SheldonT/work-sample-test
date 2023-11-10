@@ -104,6 +104,10 @@ function App() {
               will change as they're entered. Don't forget to include units for
               numerical values, where applicable.
             </li>
+            <li>
+              You can delete any component (except root) by selecting it and
+              clicking the <i>delete component</i> button.
+            </li>
 
             <li>
               Project code is hosted at{" "}

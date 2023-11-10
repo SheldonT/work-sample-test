@@ -8,6 +8,7 @@ import {
   changeButtonName,
   deleteComponent,
   setActiveComponent,
+  undoChange,
 } from "../redux/sectionSlice";
 import ColorSelect from "./ColorSelect";
 import BoxProperties from "./BoxProperties";
@@ -16,73 +17,6 @@ import "../App.css";
 
 export default function Controls({ productionAreaRef }) {
   const [componentType, setComponentType] = useState("Section");
-
-  /*const [keyPressed, setKeyPressed] = useState("");
-  const [mouseCoord, setMouseCoord] = useState([0, 0]);
-  const [mouseDown, setMouseDown] = useState(false);
-
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      setKeyPressed(event.key);
-    };
-
-    const handleKeyRelease = () => {
-      setKeyPressed("");
-    };
-
-    const handleMouseDown = (event) => {
-      setMouseCoord([event.clientX, event.clientY]);
-      setMouseDown(true);
-    };
-
-    const handleMouseRelease = () => {
-      setMouseDown(false);
-    };
-
-    window.addEventListener("keydown", (e) => handleKeyDown(e));
-    window.addEventListener("keyup", handleKeyRelease);
-    document.addEventListener("mousedown", (e) => handleMouseDown(e));
-    document.addEventListener("mouseup", handleMouseRelease);
-
-    return () => {
-      window.removeEventListener("keydown", (e) => handleKeyDown(e));
-      window.removeEventListener("keyup", handleKeyRelease);
-      document.removeEventListener("mousedown", (e) => handleMouseDown(e));
-      document.removeEventListener("mouseup", handleMouseRelease);
-    };
-  }, []);
-
-  useEffect(() => {
-    let leftOffset = 0;
-    let topOffset = 0;
-
-    if (productionAreaRef.current) {
-      topOffset = productionAreaRef.current.getBoundingClientRect().top;
-      leftOffset = productionAreaRef.current.getBoundingClientRect().left;
-    }
-    if (keyPressed === "Shift" && mouseDown) {
-      dispatch(
-        updateComponent({
-          top: mouseCoord[1] - topOffset,
-          left: mouseCoord[0] - leftOffset,
-        })
-      );
-    }
-    if (keyPressed === "Control" && mouseDown) {
-      let topPosition = 0;
-      let leftPosition = 0;
-
-      if (activeStyle.top) topPosition = activeStyle.top;
-      if (activeStyle.left) leftPosition = activeStyle.left;
-
-      dispatch(
-        updateComponent({
-          height: mouseCoord[1] - topOffset - topPosition,
-          width: mouseCoord[0] - leftOffset - leftPosition,
-        })
-      );
-    }
-  }, [mouseCoord]);*/
 
   const dispatch = useDispatch();
 
@@ -109,7 +43,7 @@ export default function Controls({ productionAreaRef }) {
   }
 
   const handleAddComponent = () => {
-    if (activeComponentType === "section") {
+    if (activeComponentType === "section" && activeComponent !== 0) {
       const newComponentId = uuidv4();
 
       if (componentType === "Section") {
@@ -170,8 +104,6 @@ export default function Controls({ productionAreaRef }) {
 
     return componentProperties[activeComponentIndex].name;
   };
-
-  console.log(componentProperties);
 
   return (
     <div className="controlsCont">
