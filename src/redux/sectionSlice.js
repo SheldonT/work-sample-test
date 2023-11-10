@@ -30,19 +30,31 @@ export const sectionSlice = createSlice({
       },
     ],
     activeComponent: 0,
+    previousState: {},
   },
+
+  /*
+  redux toolkit using the Immer library by default, which creates a draft
+  version of the state for reducers in the background, making it safe to
+  mutate the state directly.
+  https://redux-toolkit.js.org/usage/immer-reducers
+  */
+
   reducers: {
     addNewComponent: (state, action) => {
-      let newProperties = [...state.properties];
+      state.previousState = { ...state };
 
-      newProperties.push(action.payload);
-
-      state.properties = newProperties;
+      state.properties.push(action.payload);
     },
     deleteComponent: (state) => {
+      const componentToDelete = state.properties.findIndex(
+        (p) => p.id === state.activeComponent
+      );
+
       if (
         state.properties.length > 2 &&
-        state.properties.findIndex((p) => p.id === state.activeComponent) !== 1
+        componentToDelete !== 1 &&
+        componentToDelete !== -1
       ) {
         for (let i = 0; i < state.properties.length; i++) {
           if (state.properties[i].type === "section") {
@@ -59,13 +71,28 @@ export const sectionSlice = createSlice({
           }
         }
 
-        const componentToDelete = state.properties.findIndex(
-          (p) => p.id === state.activeComponent
-        );
+        const deleteComponentBuffer = {
+          ...state.properties[componentToDelete],
+        };
 
-        if (componentToDelete !== -1) {
-          state.activeComponent = state.properties[1].id;
-          state.properties.splice(componentToDelete, 1);
+        state.activeComponent = state.properties[1].id;
+        state.properties.splice(componentToDelete, 1);
+
+        if (deleteComponentBuffer.type === "section") {
+          const componentChildren = [
+            ...deleteComponentBuffer.children,
+            ...deleteComponentBuffer.buttons,
+          ];
+
+          for (let i = 0; i < state.properties.length; i++) {
+            if (state.properties[i].type === "section") {
+              for (let j = 0; j < componentChildren.length; j++) {
+                if (state.properties[i].id === componentChildren[j]) {
+                  state.properties.splice(i, 1);
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -112,29 +139,21 @@ export const sectionSlice = createSlice({
     },
 
     addSectionToActive: (state, action) => {
-      let newProperties = [...state.properties];
-
-      const containerIndex = newProperties.findIndex(
+      const containerIndex = state.properties.findIndex(
         (s) => s.id === state.activeComponent
       );
 
-      newProperties.push(action.payload);
-      newProperties[containerIndex].children.push(action.payload.id);
-
-      state.properties = newProperties;
+      state.properties.push(action.payload);
+      state.properties[containerIndex].children.push(action.payload.id);
     },
 
     addButtonToActive: (state, action) => {
-      let newProperties = [...state.properties];
-
-      const containerIndex = newProperties.findIndex(
+      const containerIndex = state.properties.findIndex(
         (s) => s.id === state.activeComponent
       );
 
-      newProperties.push(action.payload);
-      newProperties[containerIndex].buttons.push(action.payload.id);
-
-      state.properties = newProperties;
+      state.properties.push(action.payload);
+      state.properties[containerIndex].buttons.push(action.payload.id);
     },
 
     changeButtonName: (state, action) => {
@@ -147,7 +166,6 @@ export const sectionSlice = createSlice({
   },
 });
 
-// Action creators are generated for each case reducer function
 export const {
   addNewComponent,
   setActiveComponent,

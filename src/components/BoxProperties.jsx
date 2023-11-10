@@ -11,7 +11,6 @@ export default function BoxProperties({ name, top, left, right, bottom }) {
   );
 
   let activeStyle = {};
-  let activeComponentType = "";
 
   if (activeComponentIndex !== -1) {
     activeStyle = componentProperties[activeComponentIndex].style;

@@ -86,6 +86,7 @@ export default function Controls({ productionAreaRef }) {
 
   const dispatch = useDispatch();
 
+  const state = useSelector((state) => state.section);
   const componentProperties = useSelector((state) => state.section.properties);
   const activeComponent = useSelector((state) => state.section.activeComponent);
 
