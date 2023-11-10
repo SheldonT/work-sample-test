@@ -106,7 +106,7 @@ function App() {
             </li>
             <li>
               You can delete any component (except root) by selecting it and
-              clicking the <i>delete component</i> button.
+              clicking the <i>Delete Component</i> button.
             </li>
 
             <li>

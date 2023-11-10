@@ -178,7 +178,6 @@ export const {
   addSectionToActive,
   addButtonToActive,
   changeButtonName,
-  undoChange,
 } = sectionSlice.actions;
 
 export default sectionSlice.reducer;

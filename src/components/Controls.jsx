@@ -8,7 +8,6 @@ import {
   changeButtonName,
   deleteComponent,
   setActiveComponent,
-  undoChange,
 } from "../redux/sectionSlice";
 import ColorSelect from "./ColorSelect";
 import BoxProperties from "./BoxProperties";
