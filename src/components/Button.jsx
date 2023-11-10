@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 
 export default function Button({ id, children }) {
   const [stateId, setStateId] = useState(0);
+  const [isKeyPressed, setIsKeyPressed] = useState(false);
   const buttonProperties = useSelector((state) => state.section.properties);
 
   const dispatch = useDispatch();
@@ -46,18 +47,44 @@ export default function Button({ id, children }) {
     }
 
     setStateId(uniqueId);
+
+    /*const handleKeyDown = (event) => {
+      if (event.key === "Shift" || event.key === "Control") {
+        setIsKeyPressed(true);
+      }
+    };
+    const handleKeyRelease = () => {
+      setIsKeyPressed(false);
+    };
+
+    window.addEventListener("keydown", (e) => handleKeyDown(e));
+    window.addEventListener("keyup", handleKeyRelease);
+
+    return () => {
+      window.removeEventListener("keydown", (e) => handleKeyDown(e));
+      window.removeEventListener("keyup", handleKeyRelease);
+    };*/
   }, []);
 
-  const stateIndex = buttonProperties.findIndex((b) => b.id === stateId);
+  let stateIndex = 0;
+  if (id) {
+    stateIndex = buttonProperties.findIndex((b) => b.id === id);
+  } else {
+    stateIndex = buttonProperties.findIndex((b) => b.id === stateId);
+  }
 
   const buttonStyle = buttonProperties[stateIndex].style;
 
   const handleControls = (e) => {
-    dispatch(setActiveComponent(e.target.id));
+    if (!isKeyPressed) dispatch(setActiveComponent(e.target.id));
   };
 
   return (
-    <button id={stateId} style={buttonStyle} onClick={(e) => handleControls(e)}>
+    <button
+      id={id ? id : stateId}
+      style={buttonStyle}
+      onClick={(e) => handleControls(e)}
+    >
       {children}
     </button>
   );

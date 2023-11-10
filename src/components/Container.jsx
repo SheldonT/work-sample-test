@@ -1,18 +1,18 @@
 /** @format */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { addNewComponent, setActiveComponent } from "../redux/sectionSlice";
 import { v4 as uuidv4 } from "uuid";
 
 export default function Container({ id, initialStyle, children }) {
   const [stateId, setStateId] = useState(0);
-
+  const [isKeyPressed, setIsKeyPressed] = useState(false);
   const sectionProperties = useSelector((state) => state.section.properties);
 
   const dispatch = useDispatch();
 
-  useState(() => {
+  useEffect(() => {
     let uniqueId = 0;
     let newContainerState = {};
 
@@ -60,19 +60,46 @@ export default function Container({ id, initialStyle, children }) {
       dispatch(addNewComponent(newContainerState));
     }
     setStateId(uniqueId);
+
+    /*const handleKeyDown = (event) => {
+      if (event.key === "Shift" || event.key === "Control") {
+        setIsKeyPressed(true);
+      }
+    };
+    const handleKeyRelease = () => {
+      setIsKeyPressed(false);
+    };
+
+    window.addEventListener("keydown", (e) => handleKeyDown(e));
+    window.addEventListener("keyup", handleKeyRelease);
+
+    return () => {
+      window.removeEventListener("keydown", (e) => handleKeyDown(e));
+      window.removeEventListener("keyup", handleKeyRelease);
+    };*/
   }, []);
 
-  const stateIndex = sectionProperties.findIndex((s) => s.id === stateId);
+  let stateIndex = 0;
+
+  if (id) {
+    stateIndex = sectionProperties.findIndex((s) => s.id === id);
+  } else {
+    stateIndex = sectionProperties.findIndex((s) => s.id === stateId);
+  }
 
   const boxStyle = sectionProperties[stateIndex].style;
 
   const handleControls = (e) => {
-    dispatch(setActiveComponent(e.target.id));
+    if (!isKeyPressed) dispatch(setActiveComponent(e.target.id));
   };
 
   return (
-    <div id={stateId} style={boxStyle} onClick={(e) => handleControls(e)}>
-      {typeof children === "function" ? children(stateId) : children}
+    <div
+      id={id ? id : stateId}
+      style={boxStyle}
+      onClick={(e) => handleControls(e)}
+    >
+      {typeof children === "function" ? children(id ? id : stateId) : children}
     </div>
   );
 }

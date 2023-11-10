@@ -1,5 +1,5 @@
 /** @format */
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useSelector } from "react-redux";
 
 import Controls from "./components/Controls";
@@ -8,6 +8,8 @@ import Button from "./components/Button";
 
 function App() {
   const [showInstructions, setShowInstructions] = useState(false);
+
+  const productionAreaRef = useRef(null);
   const componentProperties = useSelector((state) => state.section.properties);
 
   const initialStyle = {
@@ -15,9 +17,8 @@ function App() {
     display: "flex",
     borderStyle: "solid",
     borderWidth: "1px",
-    height: "600px",
-    marginLeft: "50px",
-    marginRight: "50px",
+    height: "100%",
+    wdith: "100%",
     marginTop: "0",
     paddingLeft: "0",
     paddingRight: "0",
@@ -77,54 +78,59 @@ function App() {
           Instructions
         </h3>
       </div>
-      <div
-        className="instructions"
-        style={{ display: showInstructions ? "block" : "none" }}
-      >
-        <div className="header">
-          <h2>Instructions</h2>
-        </div>
-        <ul>
-          <li>
-            The large container below is the root container. You can add an item
-            to the root by from the <i>Add Component</i> drop down menu in the
-            controls, and clicking <i>add</i>.
-          </li>
-          <li>Add as many buttons or containers to the root as you want.</li>
-          <li>
-            Click on any section inside root to select it. You can then add
-            sections or buttons to it, or change it's CSS attributes from the
-            controls. Remember to click apply after changing any attributes.
-          </li>
-          <li>
-            When entering CSS Attributes, don't forget to include units.
-            Keywords like <i>auto</i> are also accepted.
-          </li>
-          <li>
-            Shift-click anywhere on the screen to move the controls if they're
-            in the way.
-          </li>
-          <li>
-            Project code is hosted at{" "}
-            <a
-              href="https://github.com/SheldonT/work-sample-test"
-              target="_blank"
-            >
-              https://github.com/SheldonT/work-sample-test
-            </a>
-          </li>
-        </ul>
-        <h3
-          className="linkText"
-          onClick={() => setShowInstructions(!showInstructions)}
+      {showInstructions && (
+        <div
+          className="instructions"
+          //style={{ display: showInstructions ? "block" : "none" }}
         >
-          [close]
-        </h3>
+          <div className="header">
+            <h2>Instructions</h2>
+          </div>
+          <ul>
+            <li>
+              The section to the right is the production area, and the controls
+              are to the left. The production area contains a root container by
+              default, which cannot be removed. Click anywhere on this container
+              to select it.
+            </li>
+            <li>
+              Select either a button or a section in the controls and click{" "}
+              <i>Add</i> to add that item to the root container. Add as many
+              buttons or containers to the root as you want.
+            </li>
+            <li>
+              Click on any section inside root to select it. You can then use
+              the controls to change that item's CSS properties. The properties
+              will change as they're entered. Don't forget to include units for
+              numerical values, where applicable.
+            </li>
+
+            <li>
+              Project code is hosted at{" "}
+              <a
+                href="https://github.com/SheldonT/work-sample-test"
+                target="_blank"
+              >
+                https://github.com/SheldonT/work-sample-test
+              </a>
+            </li>
+          </ul>
+          <h3
+            className="linkText"
+            onClick={() => setShowInstructions(!showInstructions)}
+          >
+            [close]
+          </h3>
+        </div>
+      )}
+      <div className="main">
+        <Controls productionAreaRef={productionAreaRef} />
+        <div ref={productionAreaRef} className="productionArea">
+          <Container initialStyle={initialStyle}>
+            {(parentId) => nestingComponents(parentId)}
+          </Container>
+        </div>
       </div>
-      <Container initialStyle={initialStyle}>
-        {(parentId) => nestingComponents(parentId)}
-      </Container>
-      <Controls />
     </>
   );
 }

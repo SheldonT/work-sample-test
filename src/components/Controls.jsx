@@ -1,56 +1,27 @@
 /** @format */
-import { useRef, useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   updateComponent,
   addSectionToActive,
   addButtonToActive,
   changeButtonName,
+  deleteComponent,
   setActiveComponent,
 } from "../redux/sectionSlice";
+import ColorSelect from "./ColorSelect";
+import BoxProperties from "./BoxProperties";
 import { v4 as uuidv4 } from "uuid";
 import "../App.css";
 
-export default function Controls() {
-  const [activeStyle, setActiveStyle] = useState({});
-  const [activeComponentType, setActiveComponentType] = useState("section");
+export default function Controls({ productionAreaRef }) {
   const [componentType, setComponentType] = useState("Section");
-  const [buttonName, setButtonName] = useState("Button");
-  const [keyPressed, setKeyPressed] = useState("");
+
+  /*const [keyPressed, setKeyPressed] = useState("");
   const [mouseCoord, setMouseCoord] = useState([0, 0]);
   const [mouseDown, setMouseDown] = useState(false);
-  const [controlsCoord, setControlsCoord] = useState({
-    right: "20px",
-    bottom: "20px",
-  });
-
-  const componentProperties = useSelector((state) => state.section.properties);
-  const activeComponent = useSelector((state) => state.section.activeComponent);
-
-  const dispatch = useDispatch();
 
   useEffect(() => {
-    if (componentProperties.length === 2) {
-      dispatch(setActiveComponent(componentProperties[1].id));
-    }
-
-    if (activeComponent !== 0) {
-      const sectionIndex = componentProperties.findIndex(
-        (s) => s.id === activeComponent
-      );
-
-      if (sectionIndex !== -1) {
-        setActiveStyle(componentProperties[sectionIndex].style);
-        setActiveComponentType(componentProperties[sectionIndex].type);
-        if (componentProperties[sectionIndex].type === "button")
-          setButtonName(componentProperties[sectionIndex].name);
-      } else {
-        setActiveStyle(componentProperties[0].style);
-      }
-    }
-  }, [activeComponent]);
-
-  useState(() => {
     const handleKeyDown = (event) => {
       setKeyPressed(event.key);
     };
@@ -64,31 +35,77 @@ export default function Controls() {
       setMouseDown(true);
     };
 
-    const handleMouseRelease = (event) => {
+    const handleMouseRelease = () => {
       setMouseDown(false);
     };
 
     window.addEventListener("keydown", (e) => handleKeyDown(e));
     window.addEventListener("keyup", handleKeyRelease);
-    window.addEventListener("mousedown", (e) => handleMouseDown(e));
-    window.addEventListener("mouseup", (e) => handleMouseRelease(e));
+    document.addEventListener("mousedown", (e) => handleMouseDown(e));
+    document.addEventListener("mouseup", handleMouseRelease);
 
     return () => {
       window.removeEventListener("keydown", (e) => handleKeyDown(e));
       window.removeEventListener("keyup", handleKeyRelease);
-      window.removeEventListener("mousedown", (e) => handleMouseDown(e));
-      window.removeEventListener("mouseup", (e) => handleMouseRelease(e));
+      document.removeEventListener("mousedown", (e) => handleMouseDown(e));
+      document.removeEventListener("mouseup", handleMouseRelease);
     };
   }, []);
 
   useEffect(() => {
-    if (keyPressed === "Shift" && mouseDown) {
-      setControlsCoord({
-        left: `${mouseCoord[0]}px`,
-        top: `${mouseCoord[1]}px`,
-      });
+    let leftOffset = 0;
+    let topOffset = 0;
+
+    if (productionAreaRef.current) {
+      topOffset = productionAreaRef.current.getBoundingClientRect().top;
+      leftOffset = productionAreaRef.current.getBoundingClientRect().left;
     }
-  }, [mouseCoord]);
+    if (keyPressed === "Shift" && mouseDown) {
+      dispatch(
+        updateComponent({
+          top: mouseCoord[1] - topOffset,
+          left: mouseCoord[0] - leftOffset,
+        })
+      );
+    }
+    if (keyPressed === "Control" && mouseDown) {
+      let topPosition = 0;
+      let leftPosition = 0;
+
+      if (activeStyle.top) topPosition = activeStyle.top;
+      if (activeStyle.left) leftPosition = activeStyle.left;
+
+      dispatch(
+        updateComponent({
+          height: mouseCoord[1] - topOffset - topPosition,
+          width: mouseCoord[0] - leftOffset - leftPosition,
+        })
+      );
+    }
+  }, [mouseCoord]);*/
+
+  const dispatch = useDispatch();
+
+  const componentProperties = useSelector((state) => state.section.properties);
+  const activeComponent = useSelector((state) => state.section.activeComponent);
+
+  const activeComponentIndex = componentProperties.findIndex(
+    (p) => p.id === activeComponent
+  );
+
+  if (activeComponentIndex === -1) {
+    dispatch(setActiveComponent(componentProperties[1].id));
+  }
+
+  let activeStyle = {};
+  let activeComponentType = "";
+
+  if (activeComponentIndex !== -1) {
+    activeStyle = componentProperties[activeComponentIndex].style;
+    activeComponentType = componentProperties[activeComponentIndex].type;
+  } else {
+    activeStyle = componentProperties[0].style;
+  }
 
   const handleAddComponent = () => {
     if (activeComponentType === "section") {
@@ -141,27 +158,22 @@ export default function Controls() {
           },
         };
         dispatch(addButtonToActive(newButton));
-        setButtonName(newButton.name);
       }
     }
   };
 
-  const handleDispatchUpdate = () => {
-    let buffer = {};
+  const getButtonName = () => {
+    const activeComponentIndex = componentProperties.findIndex(
+      (b) => b.id === activeComponent
+    );
 
-    //removing any properties containing an empty string.
-    for (const key in activeStyle) {
-      if (activeStyle[key] !== "")
-        buffer = { ...buffer, [key]: activeStyle[key] };
-    }
-
-    if (activeComponentType === "button")
-      dispatch(changeButtonName(buttonName));
-    dispatch(updateComponent(buffer));
+    return componentProperties[activeComponentIndex].name;
   };
 
+  console.log(componentProperties);
+
   return (
-    <div className="controlsCont" style={controlsCoord}>
+    <div className="controlsCont">
       <div className="controlLabel">Controls</div>
       <div className="addContainerControls">
         <label htmlFor="componentType">Add Component:</label>
@@ -183,14 +195,6 @@ export default function Controls() {
         >
           Add
         </button>
-        <span
-          className="notice"
-          style={{
-            display: activeComponentType === "button" ? "flex" : "none",
-          }}
-        >
-          Can't add a component to a button
-        </span>
       </div>
       <div
         className="addContainerControls"
@@ -205,20 +209,20 @@ export default function Controls() {
           name="buttonName"
           className="buttonName"
           placeholder="Button Name"
-          value={buttonName}
-          onChange={(e) => setButtonName(e.target.value)}
+          value={getButtonName()}
+          onChange={(e) => dispatch(changeButtonName(e.target.value))}
         ></input>
       </div>
 
-      <div className="addContainerControls">
+      <div className="controlRows">
         <label htmlFor="position">Position:</label>
         <select
           style={{ marginLeft: "5px", marginRight: "10px" }}
           id="position"
           name="position"
-          value={activeStyle.position}
+          value={componentProperties[activeComponentIndex].style.position}
           onChange={(e) =>
-            setActiveStyle({ ...activeStyle, position: e.target.value })
+            dispatch(updateComponent({ position: e.target.value }))
           }
         >
           <option value="relative">Relative</option>
@@ -227,15 +231,23 @@ export default function Controls() {
           <option value="fixed">Fixed</option>
           <option value="sticky">Sticky</option>
         </select>
-
+      </div>
+      <div
+        className={
+          componentProperties[activeComponentIndex].style.display &&
+          componentProperties[activeComponentIndex].style.display === "flex"
+            ? "controlRow"
+            : "addContainerControls"
+        }
+      >
         <label htmlFor="display">Display:</label>
         <select
           style={{ marginLeft: "5px", marginRight: "10px" }}
           id="display"
           name="display"
-          value={activeStyle.display}
+          value={componentProperties[activeComponentIndex].style.display}
           onChange={(e) =>
-            setActiveStyle({ ...activeStyle, display: e.target.value })
+            dispatch(updateComponent({ display: e.target.value }))
           }
         >
           <option value="block">Block</option>
@@ -254,7 +266,8 @@ export default function Controls() {
         className="addContainerControls"
         style={{
           display:
-            activeStyle.display && activeStyle.display === "flex"
+            componentProperties[activeComponentIndex].style.display &&
+            componentProperties[activeComponentIndex].style.display === "flex"
               ? "flex"
               : "none",
         }}
@@ -264,9 +277,9 @@ export default function Controls() {
           style={{ marginLeft: "5px", marginRight: "10px" }}
           id="flexDirection"
           name="flexDirection"
-          value={activeStyle.flexDirection}
+          value={componentProperties[activeComponentIndex].style.flexDirection}
           onChange={(e) =>
-            setActiveStyle({ ...activeStyle, flexDirection: e.target.value })
+            dispatch(updateComponent({ flexDirection: e.target.value }))
           }
         >
           <option value="row">Row</option>
@@ -274,145 +287,31 @@ export default function Controls() {
         </select>
       </div>
       <div className="controlRows">
-        <div className="controlColumns">
-          <span>Margin</span>
-          <div className="marginControlRows">
-            <input
-              className="controlFields"
-              type="text"
-              placeholder="Top"
-              value={activeStyle.marginTop}
-              onChange={(e) =>
-                setActiveStyle({ ...activeStyle, marginTop: e.target.value })
-              }
-            ></input>
-          </div>
-          <div className="marginControlRows">
-            <input
-              className="controlFields"
-              type="text"
-              placeholder="Left"
-              value={activeStyle.marginLeft}
-              onChange={(e) =>
-                setActiveStyle({ ...activeStyle, marginLeft: e.target.value })
-              }
-            ></input>
-            <input
-              className="controlFields"
-              type="text"
-              placeholder="Right"
-              value={activeStyle.marginRight}
-              onChange={(e) =>
-                setActiveStyle({ ...activeStyle, marginRight: e.target.value })
-              }
-            ></input>
-          </div>
-          <div className="marginControlRows">
-            <input
-              className="controlFields"
-              type="text"
-              placeholder="Bottom"
-              value={activeStyle.marginBottom}
-              onChange={(e) =>
-                setActiveStyle({ ...activeStyle, marginBottom: e.target.value })
-              }
-            ></input>
-          </div>
-        </div>
-        <div className="controlColumns">
-          <span>Padding</span>
-          <div className="marginControlRows">
-            <input
-              className="controlFields"
-              type="text"
-              placeholder="Top"
-              value={activeStyle.paddingTop}
-              onChange={(e) =>
-                setActiveStyle({ ...activeStyle, paddingTop: e.target.value })
-              }
-            ></input>
-          </div>
-          <div className="marginControlRows">
-            <input
-              className="controlFields"
-              type="text"
-              placeholder="Left"
-              value={activeStyle.paddingLeft}
-              onChange={(e) =>
-                setActiveStyle({ ...activeStyle, paddingLeft: e.target.value })
-              }
-            ></input>
-            <input
-              className="controlFields"
-              type="text"
-              placeholder="Right"
-              value={activeStyle.paddingRight}
-              onChange={(e) =>
-                setActiveStyle({ ...activeStyle, paddingRight: e.target.value })
-              }
-            ></input>
-          </div>
-          <div className="marginControlRows">
-            <input
-              className="controlFields"
-              type="text"
-              placeholder="Bottom"
-              value={activeStyle.paddingBottom}
-              onChange={(e) =>
-                setActiveStyle({
-                  ...activeStyle,
-                  paddingBottom: e.target.value,
-                })
-              }
-            ></input>
-          </div>
-        </div>
-
-        <div className="controlColumns">
-          <span>Position</span>
-          <div className="marginControlRows">
-            <input
-              className="controlFields"
-              type="text"
-              placeholder="Top"
-              value={activeStyle.top}
-              onChange={(e) =>
-                setActiveStyle({ ...activeStyle, top: e.target.value })
-              }
-            ></input>
-          </div>
-          <div className="marginControlRows">
-            <input
-              className="controlFields"
-              type="text"
-              placeholder="Left"
-              value={activeStyle.left}
-              onChange={(e) =>
-                setActiveStyle({ ...activeStyle, left: e.target.value })
-              }
-            ></input>
-            <input
-              className="controlFields"
-              type="text"
-              placeholder="Right"
-              value={activeStyle.right}
-              onChange={(e) =>
-                setActiveStyle({ ...activeStyle, right: e.target.value })
-              }
-            ></input>
-          </div>
-          <div className="marginControlRows">
-            <input
-              className="controlFields"
-              type="text"
-              placeholder="Bottom"
-              value={activeStyle.bottom}
-              onChange={(e) =>
-                setActiveStyle({ ...activeStyle, bottom: e.target.value })
-              }
-            ></input>
-          </div>
-        </div>
+        <BoxProperties
+          name="Margin"
+          top="marginTop"
+          left="marginLeft"
+          right="marginRight"
+          bottom="marginBottom"
+        />
+      </div>
+      <div className="controlRows">
+        <BoxProperties
+          name="Padding"
+          top="paddingTop"
+          left="paddingLeft"
+          right="paddingRight"
+          bottom="paddingBottom"
+        />
+      </div>
+      <div className="addContainerControls">
+        <BoxProperties
+          name="Position"
+          top="top"
+          left="teft"
+          right="right"
+          bottom="bottom"
+        />
       </div>
 
       <div className="controlRows">
@@ -424,14 +323,15 @@ export default function Controls() {
               id="width"
               name="width"
               className="controlFields"
-              value={activeStyle.width}
+              value={componentProperties[activeComponentIndex].style.width}
               onChange={(e) =>
-                setActiveStyle({ ...activeStyle, width: e.target.value })
+                dispatch(updateComponent({ width: e.target.value }))
               }
             ></input>
           </div>
         </div>
-
+      </div>
+      <div className="addContainerControls">
         <div className="controlColumns">
           <div className="fieldLabelCont">
             <label htmlFor="Height">Height:</label>
@@ -440,9 +340,9 @@ export default function Controls() {
               id="Height"
               name="Height"
               className="controlFields"
-              value={activeStyle.height}
+              value={componentProperties[activeComponentIndex].style.height}
               onChange={(e) =>
-                setActiveStyle({ ...activeStyle, height: e.target.value })
+                dispatch(updateComponent({ height: e.target.value }))
               }
             ></input>
           </div>
@@ -450,34 +350,23 @@ export default function Controls() {
       </div>
 
       <div className="controlRows">
-        <label htmlFor="textColor">Text Color:</label>
-        <input
-          type="text"
-          id="textColor"
-          name="textColor"
-          style={{ color: activeStyle.color }}
-          className="hexColorFields"
-          value={activeStyle.color}
-          onChange={(e) =>
-            setActiveStyle({ ...activeStyle, color: e.target.value })
-          }
-        ></input>
-
-        <label htmlFor="textColor">Background Color:</label>
-        <input
-          type="text"
-          id="textColor"
-          name="textColor"
-          className="hexColorFields"
-          style={{ backgroundColor: activeStyle.backgroundColor }}
-          value={activeStyle.backgroundColor}
-          onChange={(e) =>
-            setActiveStyle({ ...activeStyle, backgroundColor: e.target.value })
-          }
-        ></input>
+        <ColorSelect
+          label="Text Color"
+          property="color"
+          index={activeComponentIndex}
+        />
       </div>
-      <div className="submitControlRow">
-        <button onClick={() => handleDispatchUpdate()}>Apply</button>
+      <div className="controlRows">
+        <ColorSelect
+          label="Background Color"
+          property="backgroundColor"
+          index={activeComponentIndex}
+        />
+      </div>
+      <div className="controlRows">
+        <button onClick={() => dispatch(deleteComponent())}>
+          Delete Component
+        </button>
       </div>
     </div>
   );
