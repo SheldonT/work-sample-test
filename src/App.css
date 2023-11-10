@@ -12,6 +12,13 @@
 
 .productionArea {
   position: relative;
+  background: repeating-linear-gradient(
+    90deg,
+    #ccc,
+    #ccc 1px,
+    transparent 1px,
+    transparent 5px
+  );
   width: 100%;
   overflow-y: scroll;
 }
