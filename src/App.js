@@ -69,7 +69,7 @@ function App() {
   return (
     <>
       <div className="header">
-        <h1 className="headerText">Oliver POS Work-Sample Test</h1>
+        <h2 className="headerText">Oliver POS Work-Sample Test</h2>
         <h3 className="headerText">Sheldon Tower</h3>
         <h3
           className="linkText"
